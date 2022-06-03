@@ -6,23 +6,33 @@
 #include <R_ext/Visibility.h>
 
 // code.cpp
-void fun();
-extern "C" SEXP _cpp11altrepbug_fun() {
+SEXP make_fails();
+extern "C" SEXP _cpp11altrepbug_make_fails() {
   BEGIN_CPP11
-    fun();
-    return R_NilValue;
+    return cpp11::as_sexp(make_fails());
+  END_CPP11
+}
+// code.cpp
+SEXP make_works();
+extern "C" SEXP _cpp11altrepbug_make_works() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(make_works());
   END_CPP11
 }
 
 extern "C" {
 static const R_CallMethodDef CallEntries[] = {
-    {"_cpp11altrepbug_fun", (DL_FUNC) &_cpp11altrepbug_fun, 0},
+    {"_cpp11altrepbug_make_fails", (DL_FUNC) &_cpp11altrepbug_make_fails, 0},
+    {"_cpp11altrepbug_make_works", (DL_FUNC) &_cpp11altrepbug_make_works, 0},
     {NULL, NULL, 0}
 };
 }
 
+void init_altrep(DllInfo* dll);
+
 extern "C" attribute_visible void R_init_cpp11altrepbug(DllInfo* dll){
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
+  init_altrep(dll);
   R_forceSymbols(dll, TRUE);
 }
